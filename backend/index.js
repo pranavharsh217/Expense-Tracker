@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import cors from "cors"
 import connectDB from "./database/db.js";
 import userRoute from "./routes/user.routes.js"
+import expenseRoute from "./routes/expense.routes.js"
+
 dotenv.config({})
 const app=express();
 
@@ -14,7 +16,7 @@ app.use(urlencoded({extended:true}))
 app.use(cookieParser());
 const corsOptions={
     origin:"http://localhost:5713",
-    credential:true
+    credentials:true
 }
 
 app.use(cors(corsOptions));
@@ -23,6 +25,7 @@ const PORT=8000
 
 //api
 app.use("/api/v1/user",userRoute)
+app.use("/api/v1/expense",expenseRoute)
 // https:localhost:5173/api/v1/user/register
 app.listen(PORT,()=>{
     connectDB()
