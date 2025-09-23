@@ -3,7 +3,7 @@ import Logo from './shared/Logo';
 import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
 import { Avatar, AvatarImage } from "../components/ui/avatar";
 import { Button } from '../components/ui/button';
-import axios from "axios";
+import axios from 'axios';
 
 const Navbar = () => {
     const user=true;

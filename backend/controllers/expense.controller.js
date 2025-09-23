@@ -2,6 +2,7 @@ import {Expense} from "../models/expense.model.js"
 export const addExpense=async(req,res)=>{
     try {
         const{description,amount,category}=req.body;
+        const userId = req.user.id;
     if (!description || !amount || !category) {
       return res.status(400).json({
         message: "All fields are required",
@@ -21,6 +22,7 @@ export const addExpense=async(req,res)=>{
       
     })
     } catch (error) {
+        console.log(error);
         
     }
 }
