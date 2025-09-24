@@ -3,21 +3,35 @@ import {Select,SelectContent,SelectGroup,SelectItem,SelectLabel,SelectTrigger,Se
 import {Dialog,DialogClose,DialogContent,DialogDescription,DialogFooter,DialogHeader, DialogTitle,DialogTrigger,} from "@/components/ui/dialog"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
-import { use, useState } from "react"
-import { Loader2 } from "lucide-react"
+import { useState } from "react"
+import { Edit2, Loader2, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import axios from 'axios';
-import { useDispatch } from "react-redux"
+import { useSelector, useDispatch } from "react-redux";
+import { setExpense } from "../redux/expenseSlice";
+import { useEffect } from "react"
+
 const UpdateExpense = () => {
+  const { expense,singleExpense } = useSelector((store) => store.expense);
   const[formData,setFormData]=useState({
-    description:"",
-    amount:"",
-    category:"",
+    description:expense?.description,
+    amount:expense?.amount,
+    category:expense?.category,
   })
-  const[loading,setLoading]=useState(false)
+   const[loading,setLoading]=useState(false)
+   const[isOpen,setIsOpen]=useState(false);
   const dispatch = useDispatch();
-  const[isOpen,setIsOpen]=useState(false);
-  const {expense}=useDispatch((store)=>store.expense) 
+  useEffect(()=>{
+    setFormData({
+      description:singleExpense?.description,
+      amount:singleExpense?.amount,
+      category:singleExpense?.category,
+    })
+  },[singleExpense])
+ 
+  
+ 
+
   const changeEventHandler=(e)=>{
     const {name,value}=e.target;
     setFormData((prevData)=>({
@@ -25,6 +39,8 @@ const UpdateExpense = () => {
       [name]:value
     }))
   }
+
+ 
 
   const changeCategoryHandler=(value)=>{
     setFormData((prevData)=>({
@@ -38,15 +54,15 @@ const UpdateExpense = () => {
     console.log(formData);
     try{
       setLoading(true)
-      const res=await axios.post("http://localhost:8000/api/v1/expense/update",{formData},{
+      const res=await axios.post("http://localhost:8000/api/v1/expense/add",formData,{
         headers:{
           'Content-type':'application/json'
         },
         withCredentials:true
       })
       if(res.data.success){
-        dispatch(set([...expense,res.data.expense]))
-        toast.success(res.date.message)
+dispatch(setExpense([...expense, res.data.expense]));
+        toast.success(res.data.message)
         setIsOpen(false)
       }
     }catch(error){
@@ -61,7 +77,9 @@ const UpdateExpense = () => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
 
         <DialogTrigger asChild>
-          <Button onClick={()=>setIsOpen()}variant="outline">Add new Expense</Button>
+          <Button onClick={()=>{
+            setIsOpen(false);
+          }} size="icon" className="rounded-full border-green-600 text-green-600 hover:transparent" variant="outline"><Edit2/></Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -105,12 +123,7 @@ const UpdateExpense = () => {
 
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button type="submit">Save changes</Button>
-          </DialogFooter>
-          {
+             {
             loading?
             <Button>
               <Loader2 className="mr-2 h-4 animate-spin"/>
@@ -118,6 +131,8 @@ const UpdateExpense = () => {
             </Button>:
             <Button type="submit">Add</Button>
           }
+          </DialogFooter>
+         
           </form>
           
           
