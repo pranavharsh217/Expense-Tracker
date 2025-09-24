@@ -3,14 +3,12 @@ import {Select,SelectContent,SelectGroup,SelectItem,SelectLabel,SelectTrigger,Se
 import {Dialog,DialogClose,DialogContent,DialogDescription,DialogFooter,DialogHeader, DialogTitle,DialogTrigger,} from "@/components/ui/dialog"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
-import { useState } from "react"
+import { use, useState } from "react"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import axios from 'axios';
-import { useSelector, useDispatch } from "react-redux";
-import { setExpense } from "../redux/expenseSlice";
-
-const CreateExpense = () => {
+import { useDispatch } from "react-redux"
+const UpdateExpense = () => {
   const[formData,setFormData]=useState({
     description:"",
     amount:"",
@@ -18,9 +16,8 @@ const CreateExpense = () => {
   })
   const[loading,setLoading]=useState(false)
   const dispatch = useDispatch();
-  const { expense } = useSelector((store) => store.expense);
   const[isOpen,setIsOpen]=useState(false);
-
+  const {expense}=useDispatch((store)=>store.expense) 
   const changeEventHandler=(e)=>{
     const {name,value}=e.target;
     setFormData((prevData)=>({
@@ -28,8 +25,6 @@ const CreateExpense = () => {
       [name]:value
     }))
   }
-
- 
 
   const changeCategoryHandler=(value)=>{
     setFormData((prevData)=>({
@@ -43,15 +38,15 @@ const CreateExpense = () => {
     console.log(formData);
     try{
       setLoading(true)
-      const res=await axios.post("http://localhost:8000/api/v1/expense/add",formData,{
+      const res=await axios.post("http://localhost:8000/api/v1/expense/update",{formData},{
         headers:{
           'Content-type':'application/json'
         },
         withCredentials:true
       })
       if(res.data.success){
-dispatch(setExpense([...expense, res.data.expense]));
-        toast.success(res.data.message)
+        dispatch(set([...expense,res.data.expense]))
+        toast.success(res.date.message)
         setIsOpen(false)
       }
     }catch(error){
@@ -66,7 +61,7 @@ dispatch(setExpense([...expense, res.data.expense]));
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
 
         <DialogTrigger asChild>
-          <Button onClick={()=>setIsOpen(true)}variant="outline">Add new Expense</Button>
+          <Button onClick={()=>setIsOpen()}variant="outline">Add new Expense</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -110,7 +105,12 @@ dispatch(setExpense([...expense, res.data.expense]));
 
           </div>
           <DialogFooter>
-             {
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="submit">Save changes</Button>
+          </DialogFooter>
+          {
             loading?
             <Button>
               <Loader2 className="mr-2 h-4 animate-spin"/>
@@ -118,8 +118,6 @@ dispatch(setExpense([...expense, res.data.expense]));
             </Button>:
             <Button type="submit">Add</Button>
           }
-          </DialogFooter>
-         
           </form>
           
           
@@ -129,7 +127,7 @@ dispatch(setExpense([...expense, res.data.expense]));
   )
 }
 
-export default CreateExpense
+export default UpdateExpense
 
 
 

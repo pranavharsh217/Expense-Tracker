@@ -5,8 +5,10 @@
   import { setCategory } from '../redux/expenseSlice'
   import { useDispatch } from 'react-redux'
 import ExpenseTable  from './ExpenseTable'
+import useGetExpense from '../hooks/useGetExpense'
 
   const Home = () => {
+     useGetExpense((store) => store.expense)
     const dispatch=useDispatch();
     const changeCategoryHandler=(value)=>{
       dispatch(setCategory(value))

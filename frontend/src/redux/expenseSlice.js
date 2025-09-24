@@ -7,7 +7,7 @@ const expenseSlice=createSlice({
         expense:[]
     },
     reducers:{
-        setcategory:(state,action)=>{
+        setCategory:(state,action)=>{
             state.category=action.payload;
         },
           setMarkAsDone:(state,action)=>{
