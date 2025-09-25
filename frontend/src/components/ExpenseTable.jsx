@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Table,
+import {
+  Table,
   TableBody,
   TableCaption,
   TableCell,
@@ -15,11 +16,32 @@ import { Edit2, Trash } from 'lucide-react'
 import axios from 'axios'
 import { setExpense } from '../redux/expenseSlice'
 import UpdateExpense from './UpdateExpense'
-
+import { toast } from 'sonner'
 const ExpenseTable = () => {
   const dispatch = useDispatch()
   const { expense } = useSelector((store) => store.expense)
   const [LocalExpense, setLocalExpense] = useState(expense || [])
+
+  const removeExpenseHandler = async (id) => {
+    const filtered = LocalExpense.filter((e) => e._id !== id);
+    setLocalExpense(filtered);
+
+    try {
+      const res = await axios.delete(`http://localhost:8000/api/v1/expense/remove/${id}`, {
+        withCredentials: true,
+      });
+
+      if (res.data.success) {
+        dispatch(setExpense(filtered));
+        toast.success("Expense deleted successfully");
+      }
+    } catch (err) {
+      console.error("Failed to delete expense", err);
+      setLocalExpense(LocalExpense); // rollback UI
+      toast.error("Failed to delete expense");
+    }
+  };
+
 
   const handleCheckboxChange = async (id) => {
     const updated = expense.map((e) => (e._id === id ? { ...e, done: !e.done } : e))
@@ -72,13 +94,16 @@ const ExpenseTable = () => {
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex items-center justify-end gap-2">
-                  <Button size="icon" className="rounded-full border border-red-600 hover:border-transparent" variant="outline">
-                    <Trash className="h-4 w-4"/>
+                  <Button
+                    onClick={() => removeExpenseHandler(item._id)}
+                    size="icon"
+                    className="rounded-full border border-red-600 hover:border-transparent"
+                    variant="outline"
+                  >
+                    <Trash className="h-4 w-4" />
                   </Button>
-                  <Button size="icon" className="rounded-full border border-red-600 hover:border-transparent" variant="outline">
-                    <Edit2 className="h-4 w-4"/>
-                  </Button>
-                 
+                  <UpdateExpense expense={item} />
+
                 </div>
               </TableCell>
             </TableRow>
@@ -88,11 +113,12 @@ const ExpenseTable = () => {
       <TableFooter>
         <TableRow>
           <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-right">$2,500.00</TableCell>
+          {/* <TableCell className="text-right">$2,500.00</TableCell> */}
         </TableRow>
       </TableFooter>
     </Table>
   )
 }
 
-export default ExpenseTable
+
+export default ExpenseTable;
